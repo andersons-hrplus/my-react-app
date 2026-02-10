@@ -1,53 +1,131 @@
-# React + TypeScript + Vite
+# AI Chatbot - React + TypeScript + Tailwind + Supabase
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A production-ready React application with AI chatbot capabilities, built with modern technologies and following software development best practices.
 
-Currently, two official plugins are available:
+## 🚀 Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Frontend**: React 19 + TypeScript + Vite
+- **Styling**: Tailwind CSS
+- **Database**: Supabase (PostgreSQL)
+- **Deployment**: Ready for Vercel/Netlify
+- **Dev Tools**: ESLint, Hot Module Replacement
 
-## React Compiler
+## 📦 Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- ⚡ Lightning fast development with Vite
+- 🎨 Beautiful UI with Tailwind CSS
+- 🔐 Authentication ready with Supabase
+- 🤖 AI chatbot integration ready
+- 📱 Responsive design
+- 🌙 Dark mode support
+- 🔧 TypeScript for type safety
 
-## Expanding the ESLint configuration
+## 🛠️ Setup Instructions
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 1. Install Dependencies
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Configure Supabase
+1. Create a new project at [supabase.com](https://supabase.com)
+2. Copy your project URL and anon key
+3. Rename `.env.example` to `.env.local`
+4. Add your Supabase credentials:
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
+### 3. Run Development Server
+```bash
+npm run dev
+```
+
+### 4. Build for Production
+```bash
+npm run build
+```
+
+## 📁 Project Structure
+```
+src/
+├── lib/
+│   └── supabase.ts      # Supabase client configuration
+├── components/          # Reusable UI components (coming soon)
+├── pages/              # Application pages (coming soon)
+├── hooks/              # Custom React hooks (coming soon)
+├── types/              # TypeScript type definitions (coming soon)
+└── utils/              # Utility functions (coming soon)
+```
+
+## 🗄️ Database Schema (Planned)
+
+### Users Table
+- User authentication and profiles
+- AI chat preferences
+
+### Chats Table
+- Chat sessions and metadata
+- User associations
+
+### Messages Table
+- Individual chat messages
+- AI responses and user queries
+
+### AI Configuration
+- Model settings
+- System prompts and configurations
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+```bash
+npm install -g vercel
+vercel
+```
+
+### Netlify
+```bash
+npm run build
+# Deploy dist/ folder to Netlify
+```
+
+## 🔧 Development
+
+### Available Scripts
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+
+### Code Style
+- Use TypeScript for type safety
+- Follow React best practices
+- Use Tailwind CSS utilities
+- Implement proper error handling
+- Write meaningful git commits
+
+## 📚 Next Steps
+
+1. **Database Setup**: Create tables in Supabase
+2. **Authentication**: Implement user login/signup
+3. **Chat Interface**: Build the chatbot UI
+4. **AI Integration**: Connect to OpenAI/Claude API
+5. **Real-time**: Add live chat updates
+6. **Testing**: Implement unit and integration tests
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 import reactDom from 'eslint-plugin-react-dom'
 
 export default defineConfig([
