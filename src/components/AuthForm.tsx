@@ -10,6 +10,7 @@ export function AuthForm({ mode, onToggle }: AuthFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
+  const [userRole, setUserRole] = useState<'buyer' | 'seller'>('buyer')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -25,7 +26,7 @@ export function AuthForm({ mode, onToggle }: AuthFormProps) {
       if (mode === 'signin') {
         result = await signInWithEmail(email, password)
       } else {
-        result = await signUpWithEmail(email, password, fullName)
+        result = await signUpWithEmail(email, password, fullName, userRole)
       }
 
       if (result.error) {
@@ -41,47 +42,96 @@ export function AuthForm({ mode, onToggle }: AuthFormProps) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-800 dark:via-gray-900 dark:to-black py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+          <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
             <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
             {mode === 'signin' ? 'Welcome back!' : 'Create account'}
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             {mode === 'signin' 
-              ? 'Sign in to your account to continue' 
-              : 'Join us today and start chatting with AI'}
+              ? 'Sign in to access your car parts marketplace' 
+              : 'Join our car parts marketplace today'}
           </p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/20 p-8">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-5">
               {mode === 'signup' && (
-                <div>
-                  <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    id="fullName"
-                    name="fullName"
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-white"
-                    placeholder="Enter your full name"
-                  />
-                </div>
+                <>
+                  <div>
+                    <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Full Name
+                    </label>
+                    <input
+                      id="fullName"
+                      name="fullName"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 dark:bg-gray-700/50 hover:bg-white dark:hover:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                      Account Type
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className={`relative flex cursor-pointer rounded-xl p-4 border-2 transition-all ${
+                        userRole === 'buyer' 
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' 
+                          : 'border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-700/50 hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      }`}>
+                        <input
+                          type="radio"
+                          value="buyer"
+                          checked={userRole === 'buyer'}
+                          onChange={(e) => setUserRole(e.target.value as 'buyer' | 'seller')}
+                          className="sr-only"
+                        />
+                        <div className="flex flex-col items-center text-center w-full">
+                          <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                          </svg>
+                          <span className="text-sm font-semibold">Buyer</span>
+                          <span className="text-xs mt-1 opacity-75">Browse & purchase car parts</span>
+                        </div>
+                      </label>
+                      <label className={`relative flex cursor-pointer rounded-xl p-4 border-2 transition-all ${
+                        userRole === 'seller' 
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' 
+                          : 'border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-700/50 hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      }`}>
+                        <input
+                          type="radio"
+                          value="seller"
+                          checked={userRole === 'seller'}
+                          onChange={(e) => setUserRole(e.target.value as 'buyer' | 'seller')}
+                          className="sr-only"
+                        />
+                        <div className="flex flex-col items-center text-center w-full">
+                          <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                          <span className="text-sm font-semibold">Seller</span>
+                          <span className="text-xs mt-1 opacity-75">Sell car parts online</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </>
               )}
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   Email address
                 </label>
                 <input
@@ -91,12 +141,12 @@ export function AuthForm({ mode, onToggle }: AuthFormProps) {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-white"
+                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 dark:bg-gray-700/50 hover:bg-white dark:hover:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="Enter your email"
                 />
               </div>
               <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   Password
                 </label>
                 <input
@@ -106,7 +156,7 @@ export function AuthForm({ mode, onToggle }: AuthFormProps) {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-white"
+                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 dark:bg-gray-700/50 hover:bg-white dark:hover:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="Enter your password"
                   minLength={6}
                 />
@@ -116,8 +166,8 @@ export function AuthForm({ mode, onToggle }: AuthFormProps) {
             {message && (
               <div className={`p-4 rounded-xl text-sm font-medium ${
                 message.includes('Check your email') 
-                  ? 'bg-green-50 text-green-700 border border-green-200'
-                  : 'bg-red-50 text-red-700 border border-red-200'
+                  ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-600'
+                  : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-600'
               }`}>
                 <div className="flex items-center">
                   {message.includes('Check your email') ? (
@@ -162,7 +212,7 @@ export function AuthForm({ mode, onToggle }: AuthFormProps) {
                 <button
                   type="button"
                   onClick={onToggle}
-                  className="text-gray-600 hover:text-blue-600 text-sm font-medium transition-colors duration-200 underline-offset-4 hover:underline"
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm font-medium transition-colors duration-200 underline-offset-4 hover:underline"
                 >
                   {mode === 'signin'
                     ? "Don't have an account? Sign up"
@@ -175,7 +225,7 @@ export function AuthForm({ mode, onToggle }: AuthFormProps) {
 
         {/* Footer */}
         <div className="text-center pt-6">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             By continuing, you agree to our Terms of Service and Privacy Policy
           </p>
         </div>
