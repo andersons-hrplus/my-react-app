@@ -14,6 +14,7 @@ export function Profile() {
   const [profile, setProfile] = useState<ProfileData>({})
   const [updating, setUpdating] = useState(false)
   const [message, setMessage] = useState('')
+  const [showSignOutModal, setShowSignOutModal] = useState(false)
 
   useEffect(() => {
     if (contextProfile) {
@@ -45,6 +46,11 @@ export function Profile() {
     }
 
     setUpdating(false)
+  }
+
+  const handleSignOut = async () => {
+    await signOut()
+    setShowSignOutModal(false)
   }
 
   return (
@@ -91,7 +97,7 @@ export function Profile() {
                   </div>
                 </div>
                 <button
-                  onClick={signOut}
+                  onClick={() => setShowSignOutModal(true)}
                   className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors duration-200 font-medium border border-white/20"
                 >
                   Sign Out
@@ -336,6 +342,43 @@ export function Profile() {
             </div>
           </div>
         </div>
+
+        {/* Sign Out Confirmation Modal */}
+        {showSignOutModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border dark:border-gray-700 p-6 w-full max-w-md">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 dark:bg-red-900/30 rounded-full">
+                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </div>
+              
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center mb-2">
+                Sign Out Confirmation
+              </h3>
+              
+              <p className="text-gray-600 dark:text-gray-300 text-center mb-6">
+                Are you sure you want to sign out of your account? You will need to log in again to access your dashboard.
+              </p>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowSignOutModal(false)}
+                  className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                
+                <button
+                  onClick={handleSignOut}
+                  className="flex-1 px-4 py-2 text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 rounded-lg font-medium transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
   )
 }

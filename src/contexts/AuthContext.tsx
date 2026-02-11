@@ -24,6 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Load profile with manual creation fallback
   const loadProfile = async (userId: string) => {
     if (!supabase) return
     
@@ -39,25 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (data) {
         setProfile(data)
       } else {
-        // Profile doesn't exist yet, create one with default role
-        const currentUser = await supabase.auth.getUser()
-        if (currentUser.data.user) {
-          const newProfile = {
-            id: currentUser.data.user.id,
-            email: currentUser.data.user.email,
-            full_name: currentUser.data.user.user_metadata?.full_name || '',
-            user_role: 'buyer' as const,
-            updated_at: new Date().toISOString(),
-          }
-          
-          const { error: insertError } = await supabase
-            .from('profiles')
-            .insert(newProfile)
-          
-          if (!insertError) {
-            setProfile(newProfile)
-          }
-        }
+        console.log('Profile not found, will be created on signup')
       }
     } catch (error) {
       console.error('Error loading profile:', error)
@@ -100,6 +83,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUpWithEmail = async (email: string, password: string, fullName?: string, userRole: 'buyer' | 'seller' = 'buyer') => {
     if (!supabase) return { error: 'Supabase not configured' }
     
+    console.log('Starting signup process for:', email)
+    
+    // Step 1: Create auth user
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -111,18 +97,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
     })
 
-    // If signup is successful and we have a user, create the profile
-    if (!error && data.user) {
+    console.log('Supabase auth signup result:', { data, error })
+
+    if (error) {
+      console.error('Auth signup error:', error)
+      return { data, error }
+    }
+
+    // Step 2: Create profile using secure database function
+    if (data.user) {
       try {
-        await supabase.from('profiles').insert({
-          id: data.user.id,
-          email: data.user.email,
-          full_name: fullName,
-          user_role: userRole,
-          updated_at: new Date().toISOString(),
-        })
+        console.log('Creating profile for user:', data.user.id)
+        
+        const { error: profileError } = await supabase
+          .rpc('create_user_profile', {
+            user_id: data.user.id,
+            user_email: data.user.email || email,
+            full_name: fullName || '',
+            user_role: userRole
+          })
+
+        if (profileError) {
+          console.error('Profile creation error details:', profileError)
+          return {
+            data,
+            error: {
+              message: `Profile creation failed: ${profileError.message}. Please contact support.`
+            }
+          }
+        } else {
+          console.log('Profile created successfully')
+        }
       } catch (profileError) {
-        console.error('Error creating profile:', profileError)
+        console.error('Unexpected error creating profile:', profileError)
+        return {
+          data,
+          error: {
+            message: 'Profile setup failed. Please contact support.'
+          }
+        }
       }
     }
 
@@ -131,7 +144,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     if (!supabase) return
-    await supabase.auth.signOut()
+    
+    try {
+      // Clear local state immediately
+      setUser(null)
+      setSession(null)
+      setProfile(null)
+      
+      // Sign out from Supabase
+      await supabase.auth.signOut()
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
   }
 
   const updateProfile = async (updates: Partial<Profile>) => {

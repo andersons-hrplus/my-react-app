@@ -7,6 +7,7 @@ export function Navigation() {
   const { user, profile, signOut, isSeller } = useAuth()
   const location = useLocation()
   const [cartCount, setCartCount] = useState(0)
+  const [showSignOutModal, setShowSignOutModal] = useState(false)
 
   if (!user) return null
 
@@ -27,6 +28,11 @@ export function Navigation() {
       loadCartCount()
     }
   }, [user])
+
+  const handleSignOut = async () => {
+    await signOut()
+    setShowSignOutModal(false)
+  }
 
   return (
     <nav className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50">
@@ -168,7 +174,7 @@ export function Navigation() {
               </div>
               
               <button
-                onClick={signOut}
+                onClick={() => setShowSignOutModal(true)}
                 className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200"
                 title="Sign Out"
               >
@@ -180,6 +186,43 @@ export function Navigation() {
           </div>
         </div>
       </div>
+
+      {/* Sign Out Confirmation Modal */}
+      {showSignOutModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border dark:border-gray-700 p-6 w-full max-w-md">
+            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 dark:bg-red-900/30 rounded-full">
+              <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </div>
+            
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center mb-2">
+              Sign Out Confirmation
+            </h3>
+            
+            <p className="text-gray-600 dark:text-gray-300 text-center mb-6">
+              Are you sure you want to sign out of your account?
+            </p>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSignOutModal(false)}
+                className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              
+              <button
+                onClick={handleSignOut}
+                className="flex-1 px-4 py-2 text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 rounded-lg font-medium transition-colors"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   )
 }

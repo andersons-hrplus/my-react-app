@@ -130,8 +130,10 @@ ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
 -- Policies for profiles
 DROP POLICY IF EXISTS "Users can view all profiles" ON profiles;
 DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
 CREATE POLICY "Users can view all profiles" ON profiles FOR SELECT USING (true);
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
+-- Note: INSERT policy removed - use create_user_profile function instead
 
 -- Policies for categories (public read)
 DROP POLICY IF EXISTS "Anyone can view categories" ON categories;
@@ -205,6 +207,38 @@ BEGIN
     WHERE id = review_id;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Function to create user profile securely (bypasses RLS)
+CREATE OR REPLACE FUNCTION create_user_profile(
+  user_id UUID,
+  user_email TEXT,
+  full_name TEXT DEFAULT '',
+  user_role TEXT DEFAULT 'buyer'
+)
+RETURNS VOID AS $$
+BEGIN
+  INSERT INTO profiles (id, email, full_name, user_role, created_at, updated_at)
+  VALUES (
+    user_id,
+    user_email,
+    full_name,
+    user_role,
+    NOW(),
+    NOW()
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    full_name = EXCLUDED.full_name,
+    user_role = EXCLUDED.user_role,
+    updated_at = NOW();
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant execute permission to authenticated users
+GRANT EXECUTE ON FUNCTION create_user_profile(UUID, TEXT, TEXT, TEXT) TO authenticated;
+
+-- Instead, we'll handle profile creation manually in the application
+-- with proper error handling
 
 -- Add update triggers
 DROP TRIGGER IF EXISTS update_profiles_updated_at ON profiles;

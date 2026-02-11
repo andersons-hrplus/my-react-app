@@ -94,6 +94,12 @@ function App() {
           } 
         />
         <Route 
+          path="/auth" 
+          element={
+            user ? <Navigate to="/dashboard" replace /> : <AuthPage />
+          } 
+        />
+        <Route 
           path="/dashboard" 
           element={
             <ProtectedRoute>
