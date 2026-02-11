@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { productService } from '../services/productService'
 import { cartService } from '../services/cartService'
 import { reviewService } from '../services/reviewService'
+import { ReviewForm } from './ReviewForm'
+import { ReviewCard } from './ReviewCard'
 import type { Product, Review } from '../types/database'
 
 export function ProductDetail() {
@@ -56,27 +58,7 @@ export function ProductDetail() {
       setProduct(productData)
 
       // Load reviews
-      try {
-        const reviewsData = await reviewService.getProductReviews(id)
-        setReviews(reviewsData.reviews || [])
-        setAverageRating(reviewsData.averageRating || 0)
-      } catch (reviewError) {
-        console.warn('Error loading reviews:', reviewError)
-        // Don't fail the whole page if reviews fail to load
-        setReviews([])
-        setAverageRating(0)
-      }
-
-      // Check if user can review
-      if (user && isBuyer()) {
-        try {
-          const canReviewProduct = await reviewService.canReviewProduct(id)
-          setCanReview(canReviewProduct)
-        } catch (reviewError) {
-          console.warn('Error checking review eligibility:', reviewError)
-          setCanReview(false)
-        }
-      }
+      await loadReviews()
     } catch (err) {
       console.error('Error loading product:', err)
       setError(`Unable to load product: ${err instanceof Error ? err.message : String(err)}`)
@@ -84,6 +66,36 @@ export function ProductDetail() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const loadReviews = async () => {
+    if (!id) return
+    
+    try {
+      const reviewsData = await reviewService.getProductReviews(id)
+      setReviews(reviewsData.reviews || [])
+      setAverageRating(reviewsData.averageRating || 0)
+    } catch (reviewError) {
+      console.warn('Error loading reviews:', reviewError)
+      setReviews([])
+      setAverageRating(0)
+    }
+
+    // Check if user can review
+    if (user && isBuyer()) {
+      try {
+        const canReviewProduct = await reviewService.canReviewProduct(id)
+        setCanReview(canReviewProduct)
+      } catch (reviewError) {
+        console.warn('Error checking review eligibility:', reviewError)
+        setCanReview(false)
+      }
+    }
+  }
+
+  const handleReviewSuccess = () => {
+    setReviewFormOpen(false)
+    loadReviews() // Refresh reviews after successful submission
   }
 
   const handleAddToCart = async () => {
@@ -324,11 +336,7 @@ export function ProductDetail() {
           
           {canReview && (
             <button
-              onClick={() => {
-                // TODO: Implement review form component
-                alert('Review form coming soon!')
-                setReviewFormOpen(true)
-              }}
+              onClick={() => setReviewFormOpen(true)}
               className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
             >
               Write Review
@@ -339,28 +347,11 @@ export function ProductDetail() {
         {reviews.length > 0 ? (
           <div className="space-y-6">
             {reviews.map(review => (
-              <div key={review.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="flex">{renderStars(review.rating)}</div>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        by {review.reviewer?.full_name || 'Anonymous'}
-                      </span>
-                    </div>
-                    {review.title && (
-                      <h4 className="font-semibold text-gray-900 dark:text-white">{review.title}</h4>
-                    )}
-                  </div>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {new Date(review.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-                
-                {review.comment && (
-                  <p className="text-gray-700 dark:text-gray-300">{review.comment}</p>
-                )}
-              </div>
+              <ReviewCard 
+                key={review.id} 
+                review={review} 
+                onReviewUpdated={loadReviews}
+              />
             ))}
           </div>
         ) : (
@@ -369,6 +360,15 @@ export function ProductDetail() {
           </div>
         )}
       </div>
+
+      {/* Review Form Modal */}
+      {reviewFormOpen && (
+        <ReviewForm 
+          productId={product.id}
+          onSuccess={handleReviewSuccess}
+          onCancel={() => setReviewFormOpen(false)}
+        />
+      )}
     </div>
   )
 }

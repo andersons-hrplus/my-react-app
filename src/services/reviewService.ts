@@ -14,14 +14,29 @@ export const reviewService = {
     const { data: reviews, error: reviewsError, count } = await supabase
       .from('reviews')
       .select(`
-        *,
-        reviewer:profiles!reviews_reviewer_id_fkey(id, full_name, avatar_url)
+        *
       `, { count: 'exact' })
       .eq('product_id', productId)
       .order('created_at', { ascending: false })
       .range((page - 1) * limit, page * limit - 1)
 
     if (reviewsError) throw reviewsError
+
+    // Fetch reviewer profiles separately
+    const reviewsWithProfiles = await Promise.all(
+      (reviews || []).map(async (review) => {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url')
+          .eq('id', review.reviewer_id)
+          .single()
+        
+        return {
+          ...review,
+          reviewer: profile
+        }
+      })
+    )
 
     // Calculate average rating
     const { data: ratingData } = await supabase
@@ -34,7 +49,7 @@ export const reviewService = {
       : 0
 
     return {
-      reviews: reviews || [],
+      reviews: reviewsWithProfiles,
       totalCount: count || 0,
       averageRating: Math.round(averageRating * 10) / 10 // Round to 1 decimal place
     }
@@ -95,16 +110,27 @@ export const reviewService = {
       .insert({
         product_id: productId,
         reviewer_id: userData.user.id,
+        verified_purchase: true, // Set to true by default for now
         ...reviewData
       })
-      .select(`
-        *,
-        reviewer:profiles!reviews_reviewer_id_fkey(id, full_name, avatar_url)
-      `)
+      .select('*')
       .single()
 
     if (error) return { error: error.message }
-    return { data }
+    
+    // Fetch reviewer profile separately
+    const { data: reviewerProfile } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .eq('id', userData.user.id)
+      .single()
+
+    const transformedData = data ? {
+      ...data,
+      reviewer: reviewerProfile
+    } : null
+
+    return { data: transformedData }
   },
 
   // Update a review (own reviews only)
@@ -119,14 +145,24 @@ export const reviewService = {
       .update(reviewData)
       .eq('id', reviewId)
       .eq('reviewer_id', userData.user.id) // Ensure user owns the review
-      .select(`
-        *,
-        reviewer:profiles!reviews_reviewer_id_fkey(id, full_name, avatar_url)
-      `)
+      .select('*')
       .single()
 
     if (error) return { error: error.message }
-    return { data }
+    
+    // Fetch reviewer profile separately
+    const { data: reviewerProfile } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .eq('id', userData.user.id)
+      .single()
+
+    const transformedData = data ? {
+      ...data,
+      reviewer: reviewerProfile
+    } : null
+
+    return { data: transformedData }
   },
 
   // Delete a review (own reviews only)
