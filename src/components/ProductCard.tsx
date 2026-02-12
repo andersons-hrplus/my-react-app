@@ -12,7 +12,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddedToCart, onProductUpdated }: ProductCardProps) {
-  const { user, isSeller } = useAuth()
+  const { user } = useAuth()
   const [addingToCart, setAddingToCart] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [message, setMessage] = useState('')

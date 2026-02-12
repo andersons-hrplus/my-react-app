@@ -5,6 +5,7 @@ import { AuthForm } from './components/AuthForm'
 import { Profile } from './components/Profile'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { Navigation } from './components/Navigation'
+import { ChatBotWidget } from './components/ChatBotWidget'
 import { Dashboard } from './pages/Dashboard'
 import { ProductsPage } from './pages/ProductsPage'
 import { ProductDetailPage } from './pages/ProductDetailPage'
@@ -169,8 +170,9 @@ function App() {
             user ? <Navigate to="/dashboard" replace /> : <AuthPage />
           } 
         />
-      </Routes>
-    </>
+      </Routes>      
+      {/* AI Chatbot Widget - Available on all pages */}
+      <ChatBotWidget />    </>
   )
 }
 

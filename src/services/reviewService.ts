@@ -25,6 +25,8 @@ export const reviewService = {
     // Fetch reviewer profiles separately
     const reviewsWithProfiles = await Promise.all(
       (reviews || []).map(async (review) => {
+        if (!supabase) throw new Error('Supabase client not initialized')
+        
         const { data: profile } = await supabase
           .from('profiles')
           .select('id, full_name, avatar_url')
