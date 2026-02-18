@@ -1,101 +1,25 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { productService } from '../services/productService'
 import { cartService } from '../services/cartService'
-import { reviewService } from '../services/reviewService'
+import { useProduct } from '../hooks/useProduct'
+import { useReviews } from '../hooks/useReviews'
 import { ReviewForm } from './ReviewForm'
 import { ReviewCard } from './ReviewCard'
-import type { Product, Review } from '../types/database'
 
 export function ProductDetail() {
   const { id } = useParams<{ id: string }>()
   const { user, isBuyer } = useAuth()
-  const [product, setProduct] = useState<Product | null>(null)
-  const [reviews, setReviews] = useState<Review[]>([])
-  const [averageRating, setAverageRating] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const { product, loading, error } = useProduct(id)
+  const { reviews, averageRating, canReview, refreshReviews } = useReviews(id)
   const [addingToCart, setAddingToCart] = useState(false)
   const [cartMessage, setCartMessage] = useState('')
   const [selectedImage, setSelectedImage] = useState(0)
-  const [canReview, setCanReview] = useState(false)
   const [reviewFormOpen, setReviewFormOpen] = useState(false)
-
-  useEffect(() => {
-    if (id) {
-      loadProduct()
-    }
-  }, [id])
-
-  const loadProduct = async () => {
-    if (!id) {
-      console.warn('No product ID provided')
-      setError('No product ID provided')
-      setLoading(false)
-      return
-    }
-
-    setLoading(true)
-    setError('')
-    
-    try {
-      console.log('Loading product with ID:', id)
-      
-      // Validate that the ID is a valid UUID format
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-      if (!uuidRegex.test(id)) {
-        throw new Error('Invalid product ID format')
-      }
-      
-      const productData = await productService.getProductById(id)
-      console.log('Product data loaded:', productData)
-      
-      if (!productData) {
-        throw new Error('Product data is null or undefined')
-      }
-      
-      setProduct(productData)
-
-      // Load reviews
-      await loadReviews()
-    } catch (err) {
-      console.error('Error loading product:', err)
-      setError(`Unable to load product: ${err instanceof Error ? err.message : String(err)}`)
-      setProduct(null)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const loadReviews = async () => {
-    if (!id) return
-    
-    try {
-      const reviewsData = await reviewService.getProductReviews(id)
-      setReviews(reviewsData.reviews || [])
-      setAverageRating(reviewsData.averageRating || 0)
-    } catch (reviewError) {
-      console.warn('Error loading reviews:', reviewError)
-      setReviews([])
-      setAverageRating(0)
-    }
-
-    // Check if user can review
-    if (user && isBuyer()) {
-      try {
-        const canReviewProduct = await reviewService.canReviewProduct(id)
-        setCanReview(canReviewProduct)
-      } catch (reviewError) {
-        console.warn('Error checking review eligibility:', reviewError)
-        setCanReview(false)
-      }
-    }
-  }
 
   const handleReviewSuccess = () => {
     setReviewFormOpen(false)
-    loadReviews() // Refresh reviews after successful submission
+    refreshReviews()
   }
 
   const handleAddToCart = async () => {
@@ -174,11 +98,11 @@ export function ProductDetail() {
         <div className="space-y-4">
           {product.images && product.images.length > 0 ? (
             <>
-              <div className="aspect-square bg-gray-100 dark:bg-gray-700 rounded-2xl overflow-hidden">
+              <div className="aspect-[4/3] bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden flex items-center justify-center">
                 <img
                   src={product.images[selectedImage]}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               </div>
               {product.images.length > 1 && (
@@ -202,7 +126,7 @@ export function ProductDetail() {
               )}
             </>
           ) : (
-            <div className="aspect-square bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center">
+            <div className="aspect-[4/3] bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center">
               <svg className="w-24 h-24 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
@@ -350,7 +274,7 @@ export function ProductDetail() {
               <ReviewCard 
                 key={review.id} 
                 review={review} 
-                onReviewUpdated={loadReviews}
+                onReviewUpdated={refreshReviews}
               />
             ))}
           </div>

@@ -1,33 +1,17 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { useState, useEffect } from 'react'
-import { cartService } from '../services/cartService'
+import { useState } from 'react'
+import { useCartCount } from '../hooks/useCartCount'
 
 export function Navigation() {
   const { user, profile, signOut, isSeller } = useAuth()
   const location = useLocation()
-  const [cartCount, setCartCount] = useState(0)
+  const { cartCount } = useCartCount()
   const [showSignOutModal, setShowSignOutModal] = useState(false)
 
   if (!user) return null
 
   const isActive = (path: string) => location.pathname === path
-
-  // Load cart count
-  useEffect(() => {
-    const loadCartCount = async () => {
-      try {
-        const summary = await cartService.getCartSummary()
-        setCartCount(summary.totalItems)
-      } catch (error) {
-        console.error('Error loading cart count:', error)
-      }
-    }
-
-    if (user) {
-      loadCartCount()
-    }
-  }, [user])
 
   const handleSignOut = async () => {
     await signOut()

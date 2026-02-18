@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { ProductCard } from './ProductCard'
 import { productService } from '../services/productService'
-import { categoryService } from '../services/categoryService'
-import type { Product, Category } from '../types/database'
+import { useCategories } from '../hooks/useCategories'
+import type { Product } from '../types/database'
 
 interface ProductListProps {
   sellerId?: string
@@ -29,7 +29,7 @@ export function ProductList({
   title 
 }: ProductListProps) {
   const [products, setProducts] = useState<Product[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
+  const { categories } = useCategories()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [page, setPage] = useState(1)
@@ -93,17 +93,7 @@ export function ProductList({
     }
   }
 
-  const loadCategories = async () => {
-    try {
-      const categoriesData = await categoryService.getAllCategories()
-      setCategories(categoriesData)
-    } catch (err) {
-      console.error('Error loading categories:', err)
-    }
-  }
-
   useEffect(() => {
-    loadCategories()
     loadProducts()
   }, [sellerId, featured, limit])
 

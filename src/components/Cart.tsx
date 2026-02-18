@@ -1,90 +1,24 @@
-import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { cartService } from '../services/cartService'
-import type { CartItem } from '../types/database'
+import { useCart } from '../hooks/useCart'
 
 export function Cart() {
   const { user } = useAuth()
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [updating, setUpdating] = useState<string | null>(null)
-  const [error, setError] = useState('')
+  const {
+    cartItems,
+    activeItems,
+    loading,
+    updating,
+    error,
+    subtotal,
+    updateQuantity,
+    removeItem,
+    clearCart,
+  } = useCart()
 
-  const loadCart = async () => {
-    if (!user) return
-
-    try {
-      setLoading(true)
-      const items = await cartService.getCartItems()
-      setCartItems(items)
-      setError('')
-    } catch (err) {
-      console.error('Error loading cart:', err)
-      setError('Failed to load cart')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    loadCart()
-  }, [user])
-
-  const updateQuantity = async (cartItemId: string, newQuantity: number) => {
-    try {
-      setUpdating(cartItemId)
-      const result = await cartService.updateCartItemQuantity(cartItemId, newQuantity)
-      
-      if (result.error) {
-        setError(result.error)
-      } else {
-        await loadCart() // Reload cart to get updated data
-      }
-    } catch (err) {
-      console.error('Error updating quantity:', err)
-      setError('Failed to update quantity')
-    } finally {
-      setUpdating(null)
-    }
-  }
-
-  const removeItem = async (cartItemId: string) => {
-    try {
-      setUpdating(cartItemId)
-      const result = await cartService.removeFromCart(cartItemId)
-      
-      if (result.error) {
-        setError(result.error)
-      } else {
-        await loadCart() // Reload cart to remove item
-      }
-    } catch (err) {
-      console.error('Error removing item:', err)
-      setError('Failed to remove item')
-    } finally {
-      setUpdating(null)
-    }
-  }
-
-  const clearCart = async () => {
+  const handleClearCart = async () => {
     if (!confirm('Are you sure you want to clear your cart?')) return
-
-    try {
-      setLoading(true)
-      const result = await cartService.clearCart()
-      
-      if (result.error) {
-        setError(result.error)
-      } else {
-        setCartItems([])
-      }
-    } catch (err) {
-      console.error('Error clearing cart:', err)
-      setError('Failed to clear cart')
-    } finally {
-      setLoading(false)
-    }
+    await clearCart()
   }
 
   const formatPrice = (price: number) => {
@@ -94,17 +28,6 @@ export function Cart() {
     }).format(price)
   }
 
-  const calculateSubtotal = () => {
-    return cartItems.reduce((sum, item) => {
-      if (item.product && item.product.is_active) {
-        return sum + (item.product.price * item.quantity)
-      }
-      return sum
-    }, 0)
-  }
-
-  const activeItems = cartItems.filter(item => item.product?.is_active)
-  const subtotal = calculateSubtotal()
   const tax = subtotal * 0.08 // 8% tax
   const total = subtotal + tax
 
@@ -137,7 +60,7 @@ export function Cart() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Shopping Cart</h1>
         {cartItems.length > 0 && (
           <button
-            onClick={clearCart}
+            onClick={handleClearCart}
             className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm font-medium"
           >
             Clear Cart

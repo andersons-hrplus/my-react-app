@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { productService } from '../services/productService'
-import { categoryService } from '../services/categoryService'
-import type { Product, Category, ProductFormData } from '../types/database'
+import { useCategories } from '../hooks/useCategories'
+import type { Product, ProductFormData } from '../types/database'
 
 interface ProductFormProps {
   product?: Product
@@ -13,7 +13,7 @@ interface ProductFormProps {
 export function ProductForm({ product, onSuccess }: ProductFormProps) {
   const { isSeller } = useAuth()
   const navigate = useNavigate()
-  const [categories, setCategories] = useState<Category[]>([])
+  const { categories } = useCategories()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [imageInput, setImageInput] = useState('')
@@ -41,20 +41,8 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
   useEffect(() => {
     if (!isSeller()) {
       navigate('/')
-      return
     }
-
-    loadCategories()
   }, [isSeller, navigate])
-
-  const loadCategories = async () => {
-    try {
-      const categoriesData = await categoryService.getAllCategories()
-      setCategories(categoriesData)
-    } catch (err) {
-      console.error('Error loading categories:', err)
-    }
-  }
 
   const handleInputChange = (field: keyof ProductFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))

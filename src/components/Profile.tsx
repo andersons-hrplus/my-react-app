@@ -170,95 +170,6 @@ export function Profile() {
                       </div>
                     </div>
                   )}
-
-                  {/* Theme Selection */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                      Appearance theme
-                    </label>
-                    <div className="space-y-3">
-                      <div 
-                        className={`flex items-center p-3 border rounded-xl cursor-pointer transition-all duration-200 ${
-                          theme === 'light' 
-                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-1 ring-blue-500' 
-                            : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-gray-50/50 dark:bg-gray-700/50'
-                        }`}
-                        onClick={() => setTheme('light')}
-                      >
-                        <input
-                          type="radio"
-                          name="theme"
-                          value="light"
-                          checked={theme === 'light'}
-                          onChange={() => setTheme('light')}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                        />
-                        <div className="ml-3">
-                          <div className="flex items-center">
-                            <svg className="h-5 w-5 text-yellow-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
-                            </svg>
-                            <span className="font-medium text-gray-900 dark:text-white">Light</span>
-                          </div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Clean, bright interface</p>
-                        </div>
-                      </div>
-
-                      <div 
-                        className={`flex items-center p-3 border rounded-xl cursor-pointer transition-all duration-200 ${
-                          theme === 'dark' 
-                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-1 ring-blue-500' 
-                            : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-gray-50/50 dark:bg-gray-700/50'
-                        }`}
-                        onClick={() => setTheme('dark')}
-                      >
-                        <input
-                          type="radio"
-                          name="theme"
-                          value="dark"
-                          checked={theme === 'dark'}
-                          onChange={() => setTheme('dark')}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                        />
-                        <div className="ml-3">
-                          <div className="flex items-center">
-                            <svg className="h-5 w-5 text-indigo-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                            </svg>
-                            <span className="font-medium text-gray-900 dark:text-white">Dark</span>
-                          </div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Easy on the eyes</p>
-                        </div>
-                      </div>
-
-                      <div 
-                        className={`flex items-center p-3 border rounded-xl cursor-pointer transition-all duration-200 ${
-                          theme === 'system' 
-                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-1 ring-blue-500' 
-                            : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-gray-50/50 dark:bg-gray-700/50'
-                        }`}
-                        onClick={() => setTheme('system')}
-                      >
-                        <input
-                          type="radio"
-                          name="theme"
-                          value="system"
-                          checked={theme === 'system'}
-                          onChange={() => setTheme('system')}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                        />
-                        <div className="ml-3">
-                          <div className="flex items-center">
-                            <svg className="h-5 w-5 text-gray-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clipRule="evenodd" />
-                            </svg>
-                            <span className="font-medium text-gray-900 dark:text-white">System</span>
-                          </div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Follow device setting</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 {message && (
@@ -305,6 +216,95 @@ export function Profile() {
                   )}
                 </button>
               </form>
+
+              {/* Theme Selection — outside the form, below the submit button */}
+              <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                  Appearance theme
+                </label>
+                <div className="space-y-3">
+                  <div 
+                    className={`flex items-center p-3 border rounded-xl cursor-pointer transition-all duration-200 ${
+                      theme === 'light' 
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-1 ring-blue-500' 
+                        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-gray-50/50 dark:bg-gray-700/50'
+                    }`}
+                    onClick={() => setTheme('light')}
+                  >
+                    <input
+                      type="radio"
+                      name="theme"
+                      value="light"
+                      checked={theme === 'light'}
+                      onChange={() => setTheme('light')}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <div className="ml-3">
+                      <div className="flex items-center">
+                        <svg className="h-5 w-5 text-yellow-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+                        </svg>
+                        <span className="font-medium text-gray-900 dark:text-white">Light</span>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Clean, bright interface</p>
+                    </div>
+                  </div>
+
+                  <div 
+                    className={`flex items-center p-3 border rounded-xl cursor-pointer transition-all duration-200 ${
+                      theme === 'dark' 
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-1 ring-blue-500' 
+                        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-gray-50/50 dark:bg-gray-700/50'
+                    }`}
+                    onClick={() => setTheme('dark')}
+                  >
+                    <input
+                      type="radio"
+                      name="theme"
+                      value="dark"
+                      checked={theme === 'dark'}
+                      onChange={() => setTheme('dark')}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <div className="ml-3">
+                      <div className="flex items-center">
+                        <svg className="h-5 w-5 text-indigo-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                        </svg>
+                        <span className="font-medium text-gray-900 dark:text-white">Dark</span>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Easy on the eyes</p>
+                    </div>
+                  </div>
+
+                  <div 
+                    className={`flex items-center p-3 border rounded-xl cursor-pointer transition-all duration-200 ${
+                      theme === 'system' 
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-1 ring-blue-500' 
+                        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-gray-50/50 dark:bg-gray-700/50'
+                    }`}
+                    onClick={() => setTheme('system')}
+                  >
+                    <input
+                      type="radio"
+                      name="theme"
+                      value="system"
+                      checked={theme === 'system'}
+                      onChange={() => setTheme('system')}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <div className="ml-3">
+                      <div className="flex items-center">
+                        <svg className="h-5 w-5 text-gray-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clipRule="evenodd" />
+                        </svg>
+                        <span className="font-medium text-gray-900 dark:text-white">System</span>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Follow device setting</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Account Info */}
