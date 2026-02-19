@@ -69,6 +69,19 @@ function createSystemPrompt(): string {
 
 **Important**: You cannot process actual orders or access real user account data - always direct users to use the platform's built-in features for transactions and account management.
 
+**Product Search**: When a user asks you to find, search for, or look up products (e.g. "find brake pads", "do you have alternators for a 2019 Honda", "show me new filters under $50"), you MUST include a search block at the END of your response in this exact format:
+
+\`\`\`SEARCH
+{"search":"keyword","brand":"optional brand","condition":"new or used","minPrice":0,"maxPrice":100}
+\`\`\`
+
+Rules for the SEARCH block:
+- Only include fields that the user actually specified. Omit any field the user did not mention.
+- "search" should be the main keyword(s) describing the part.
+- "brand", "condition", "minPrice", "maxPrice" are all optional.
+- Always place the block AFTER your conversational text.
+- Do NOT include the SEARCH block for general questions, help, or navigation queries — only for product lookups.
+
 Respond naturally and helpfully to the user's question.`
 }
 
@@ -161,7 +174,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         messages,
-        max_tokens: 500,
+        max_tokens: 800,
         temperature: 0.7,
         top_p: 0.95,
         frequency_penalty: 0,
@@ -178,19 +191,76 @@ Deno.serve(async (req) => {
       )
     }
 
-    // ── 5. Return response ───────────────────────────────────────────────
+    // ── 5. Return response (with optional product search) ────────────────
     const data = await aiResponse.json()
+    const rawContent = data.choices?.[0]?.message?.content?.trim()
 
-    if (data.choices?.[0]?.message?.content) {
+    if (!rawContent) {
       return new Response(
-        JSON.stringify({ message: data.choices[0].message.content.trim() }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        JSON.stringify({ error: 'Unexpected response format from AI' }),
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       )
     }
 
+    // Parse optional SEARCH block from AI response
+    let displayMessage = rawContent
+    let products: any[] | undefined
+    let debugInfo: any = {}
+
+    // Flexible regex: match ```SEARCH or ```search with optional whitespace/newlines
+    const searchMatch = rawContent.match(/```\s*SEARCH\s*\n?([\s\S]*?)\n?\s*```/i)
+    debugInfo.hasSearchBlock = !!searchMatch
+    debugInfo.rawContentTail = rawContent.slice(-200)
+
+    if (searchMatch) {
+      // Remove the SEARCH block from the displayed message
+      displayMessage = rawContent.replace(/```\s*SEARCH\s*\n?[\s\S]*?\n?\s*```/i, '').trim()
+
+      try {
+        const filters = JSON.parse(searchMatch[1].trim())
+        debugInfo.parsedFilters = filters
+
+        let query = supabase
+          .from('products')
+          .select('id, name, price, brand, model, condition, images, stock_quantity, year_from, year_to, part_number, category_id')
+          .eq('is_active', true)
+
+        if (filters.search) {
+          query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%,brand.ilike.%${filters.search}%`)
+        }
+        if (filters.brand) {
+          query = query.ilike('brand', `%${filters.brand}%`)
+        }
+        if (filters.condition) {
+          query = query.eq('condition', filters.condition)
+        }
+        if (typeof filters.minPrice === 'number') {
+          query = query.gte('price', filters.minPrice)
+        }
+        if (typeof filters.maxPrice === 'number') {
+          query = query.lte('price', filters.maxPrice)
+        }
+
+        const { data: productData, error: productError } = await query
+          .order('featured', { ascending: false })
+          .order('created_at', { ascending: false })
+          .limit(6)
+
+        debugInfo.productCount = productData?.length ?? 0
+        debugInfo.productError = productError?.message
+
+        if (!productError && productData && productData.length > 0) {
+          products = productData
+        }
+      } catch (parseErr) {
+        debugInfo.parseError = String(parseErr)
+        console.error('Failed to parse SEARCH block:', parseErr)
+      }
+    }
+
     return new Response(
-      JSON.stringify({ error: 'Unexpected response format from AI' }),
-      { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      JSON.stringify({ message: displayMessage, ...(products ? { products } : {}), _debug: debugInfo }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (error) {
     console.error('Edge function error:', error)
