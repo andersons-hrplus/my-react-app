@@ -99,6 +99,57 @@ export interface OrderItem {
   seller?: Profile;
 }
 
+export interface SellerPaymentInfo {
+  id: string;
+  seller_id: string;
+  bank_name?: string;
+  account_holder_name?: string;
+  account_number_last4?: string;
+  routing_number_last4?: string;
+  paypal_email?: string;
+  stripe_account_id?: string;
+  payment_method_preference: 'paypal' | 'bank_transfer';
+  is_verified: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Payment {
+  id: string;
+  order_id: string;
+  buyer_id: string;
+  amount: number;
+  currency: string;
+  stripe_payment_intent_id?: string; // Also stores PayPal capture ID
+  stripe_checkout_session_id?: string; // Also stores PayPal order ID
+  status: 'pending' | 'processing' | 'succeeded' | 'failed' | 'refunded' | 'cancelled';
+  payment_method?: string;
+  receipt_url?: string;
+  failure_reason?: string;
+  metadata?: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+  // Joined data
+  order?: Order;
+}
+
+export interface ShippingAddress {
+  full_name: string;
+  address_line1: string;
+  address_line2?: string;
+  city: string;
+  state: string;
+  zip_code: string;
+  country: string;
+  phone?: string;
+}
+
+export interface CheckoutData {
+  shipping_address: ShippingAddress;
+  payment_method: string;
+  notes?: string;
+}
+
 // Form types
 export interface ProductFormData {
   name: string;

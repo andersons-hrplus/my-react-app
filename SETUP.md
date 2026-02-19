@@ -124,7 +124,7 @@ Once everything is working:
 2. Add your own product images and data
 3. Configure email templates in Supabase Auth
 4. Set up custom domain and SSL
-5. Configure payment processing (Stripe, etc.)
+5. Configure payment processing (PayPal)
 
 ## Architecture Overview
 

@@ -220,12 +220,12 @@ export function Cart() {
                 </div>
               </div>
 
-              <button
-                disabled={activeItems.length === 0}
-                className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors mt-6"
+              <Link
+                to="/checkout"
+                className={`block w-full text-center bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors mt-6 ${activeItems.length === 0 ? 'opacity-50 pointer-events-none' : ''}`}
               >
                 Proceed to Checkout
-              </button>
+              </Link>
 
               <Link
                 to="/products"

@@ -13,6 +13,11 @@ import { CartPage } from './pages/CartPage'
 import { SellerProductsPage } from './pages/SellerProductsPage'
 import { AddProductPage } from './pages/AddProductPage'
 import { EditProductPage } from './pages/EditProductPage'
+import { CheckoutPage } from './pages/CheckoutPage'
+import { PaymentSuccessPage } from './pages/PaymentSuccessPage'
+import { PaymentCancelPage } from './pages/PaymentCancelPage'
+import { OrdersPage } from './pages/OrdersPage'
+import { SellerPaymentSetupPage } from './pages/SellerPaymentSetupPage'
 import { isSupabaseConfigured } from './lib/supabase'
 
 function AuthPage() {
@@ -161,6 +166,46 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/checkout" 
+          element={
+            <ProtectedRoute>
+              <CheckoutPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/payment/success" 
+          element={
+            <ProtectedRoute>
+              <PaymentSuccessPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/payment/cancel" 
+          element={
+            <ProtectedRoute>
+              <PaymentCancelPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/orders" 
+          element={
+            <ProtectedRoute>
+              <OrdersPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/seller/payments" 
+          element={
+            <ProtectedRoute>
+              <SellerPaymentSetupPage />
             </ProtectedRoute>
           } 
         />
